@@ -1,8 +1,10 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application } from "express";
+import connectMongoDB from "./database/mongoDB";
 import { rateLimit } from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import helmet from "helmet";
 import cors from "cors";
+import dotenv from "dotenv";
 
 // ? MOCK_DATA
 import mockDataUsers from "./mockData/users.json";
@@ -12,6 +14,7 @@ import mockDataReviews from "./mockData/reviews.json";
 
 const app: Application = express();
 const port: number = 5100;
+dotenv.config();
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -38,6 +41,7 @@ app.use(express.static("./public"));
 
 const startServer = async () => {
   try {
+    await connectMongoDB(process.env.MONGODB_STR as string);
     app.listen(port, () => {
       console.log(`Server is running on PORT:${port}`);
     });
