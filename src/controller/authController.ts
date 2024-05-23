@@ -3,6 +3,8 @@ import { BadRequestError, NotFoundError, UnauthorizedError } from "../errors";
 import * as EmailValidator from "email-validator";
 import UserModel from "../models/userModel";
 import bcrypt from "bcrypt";
+import { attachCookies, createTokenPayload } from "../utils";
+import { UserResponseProps } from "../utils/createTokenPayload";
 
 export const Login = async (
   req: Request,
@@ -34,7 +36,10 @@ export const Login = async (
 
     const { password: pass, ...others } = currentUser;
 
-    res.status(200).json(others);
+    const tokenPayload = createTokenPayload(others as UserResponseProps);
+    attachCookies(res, tokenPayload);
+
+    res.status(200).json({ user: tokenPayload });
   } catch (err) {
     next(err);
   }
