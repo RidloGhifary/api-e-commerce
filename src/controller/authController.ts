@@ -75,3 +75,14 @@ export const Login = async (
     next(err);
   }
 };
+
+export const Logout = async (_: Request, res: Response, next: NextFunction) => {
+  try {
+    res.cookie("accessToken", "logout", {
+      httpOnly: true,
+      expires: new Date(Date.now()),
+    });
+  } catch (err) {
+    next(err);
+  }
+};
