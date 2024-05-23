@@ -1,8 +1,8 @@
 import { Response } from "express";
-import CreateTokenPayload, { UserResponseProps } from "./createTokenPayload";
+import createTokenPayload, { UserResponseProps } from "./createTokenPayload";
 
 const attachCookies = (res: Response, tokenPayLoad: UserResponseProps) => {
-  const token = CreateTokenPayload(tokenPayLoad);
+  const token = createTokenPayload(tokenPayLoad);
   const oneDay = 1000 * 60 * 60 * 24;
 
   res.cookie("accessToken", token, {
