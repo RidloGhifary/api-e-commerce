@@ -6,6 +6,37 @@ import bcrypt from "bcrypt";
 import { attachCookies, createTokenPayload } from "../utils";
 import { UserResponseProps } from "../utils/createTokenPayload";
 
+export const Register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      body: { email },
+    } = req;
+
+    if (!email) throw new BadRequestError("Please provide a valid email");
+
+    const isValidEmail = EmailValidator.validate(email);
+    if (!isValidEmail)
+      throw new BadRequestError("Please provide a valid email");
+
+    const currentUser = await UserModel.findOne({ email });
+    if (currentUser) throw new BadRequestError("Email already exist");
+
+    const isFirstAccount = (await UserModel.countDocuments({})) === 0;
+    const role = isFirstAccount ? "admin" : "user";
+    const user = await UserModel.create({ ...req.body, role });
+
+    res
+      .status(201)
+      .json({ message: "Account created, please proceed to login page", user });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const Login = async (
   req: Request,
   res: Response,
