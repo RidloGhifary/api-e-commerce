@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import UserModel from "../models/userModel";
+import { BadRequestError, NotFoundError, UnauthorizedError } from "../errors";
 import * as EmailValidator from "email-validator";
+import UserModel from "../models/userModel";
 import bcrypt from "bcrypt";
 
 export const Login = async (
@@ -14,19 +15,22 @@ export const Login = async (
     } = req;
 
     if (!email || !password)
-      throw new Error("Please provide a valid email and password");
+      throw new BadRequestError("Please provide a valid email and password");
 
     const isValidEmail = EmailValidator.validate(email);
-    if (!isValidEmail) throw new Error("Please provide a valid email");
+    if (!isValidEmail)
+      throw new BadRequestError("Please provide a valid email");
 
     const currentUser = await UserModel.findOne({ email });
-    if (!currentUser) throw new Error(`${email} has not registered yet`);
+    if (!currentUser)
+      throw new NotFoundError(`${email} has not registered yet`);
 
     const isPasswordCorrect = await bcrypt.compare(
       password,
       currentUser.password
     );
-    if (!isPasswordCorrect) throw new Error("Wrong credentials, try again");
+    if (!isPasswordCorrect)
+      throw new UnauthorizedError("Wrong credentials, try again");
 
     const { password: pass, ...others } = currentUser;
 
